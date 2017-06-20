@@ -1,33 +1,7 @@
 # TCP-CHAT
 \n
-# Include
-* gitignore
-* eslint
-* package.json
-* include any npm scripts for starting server, linting, testing, etc
-* readme
- * Write a paragraph about your project
- * Write docs on how to get the project running
- * Write docs on how to connect to the server
-* test your code
-  * ensure that all of your methods have test coverage
-  * write tests which start your server, send and receive, and confirm functionality
-
-## Directions
-* Create a TCP Server use using the net module
-* Create a Client Constructor
-* When sockets connect to the server a new `Client` instance should be made
-* Clients should have a unique 'nickname'
- * **e.g.** `guest-43`
-* When sockets are connected with the ClientPool they should be given event listeners for `data`, `error`, and `close` events
- * When a socket emits the `close` event the socket should be removed from the client pool!
- * When a socket emits the `error` event the error should be logged on the server
- * When a socket emits the `data` event the data should be logged on the server and the `\wack` commands below should be implemented
-
-# Wack commands `'/'`
-* `/nick` should allow a user change their nickname
-* `/dm` should allow a user to send a message directly to another user by nick name
-* when a user speaks their nickname should be printed
- * **i.e.** `teapot: Sup Hacker?`
-* `/troll` should take in a number and a message and send the message to everyone that number of times
-* `/quit` should close the connection with the user
+# In todays TCP Chat project I created a TCP server using the net module. I then created a client constructor which was instantiated when sockets connected to the server. In the Client constructor I created a property to give the client a unique 'nickname'. Once sockets connected with clientPool they were given event listeners for data, error, and close events.
+\n
+# To get the project running you must include const net = require('net'), and const server = net.createServer(). Server.listen is necessary to listen for a port so we can run live in the terminal by running the command 'telnet localhost (port number)', in another terminal window run node index.js. Both of these must be running consecutively for everything to function properly.
+\n
+# To connect to the server we create a file index.js, require our net and net.createServer, and then we use server.on('connection', (socket) => { let client = new Client(socket); socket.write(`hello ${client.nickName}, welcome to codeChat!\n`);console.log(`${client.nickName} is connected!`). Then you are connected!

@@ -2,27 +2,27 @@
 
 const net = require('net');
 const server = net.createServer();
-const User = require('./user.js');
+const Client = require('./client.js');
 
 let clientPool = [];
 
 server.on('connection', (socket) => {
-  let user = new User(socket);
-  socket.write(`hello ${user.nickName}, welcome to codeChat!\n`);
-  console.log(`${user.nickName} is connected!`);
+  let client = new Client(socket);
+  socket.write(`hello ${client.nickName}, welcome to codeChat!\n`);
+  console.log(`${client.nickName} is connected!`);
 
-  clientPool = [...clientPool, user];
+  clientPool = [...clientPool, client];
 
 
   let handleDisconnect = () => {
-    console.log(`${user.nickName} has left the chat`);
-    clientPool = clientPool.filter(item => item !== user);
+    console.log(`${client.nickName} has left the chat`);
+    clientPool = clientPool.filter(item => item !== client);
   };
 
   let handleError = (error) => {
     console.log('There is an error, you are being disconnected.');
     console.log(error);
-    clientPool = clientPool.filter(item => item !== user);
+    clientPool = clientPool.filter(item => item !== client);
   };
 
   socket.on('error', handleError);
@@ -31,24 +31,21 @@ server.on('connection', (socket) => {
   socket.on('data', (buffer) => {
     let data = buffer.toString();
 
-    //this allows the user to change their nickname
+    //this allows the client to change their nickname
     if(data.startsWith('/nick')) {
-      user.nickName = data.split('/nick ')[1] || user.nickName;
-      user.nickName = user.nickName.trim();
-      socket.write(`from henceforth, you shall be called ${user.nickName}`);
-      console.log('data');
+      client.nickName = data.split('/nick ')[1] || client.nickName;
+      client.nickName = client.nickName.trim();
+      socket.write(`from henceforth, you shall be called ${client.nickName}`);
       return;
     }
 
-    //this allows the user to send a direct message to another user
+    //this allows the client to send a direct message to another client
     if(data.startsWith('/dm')) {
       let userName = data.split(' ')[1];
-      console.log(userName);
       let matchedUsers = clientPool.filter(item => item.nickName === userName);
-      console.log(matchedUsers);
       matchedUsers.forEach((dmUser) => {
         let message = data.split(' ').slice(2).join(' ');
-        dmUser.socket.write(`${user.nickName}: ${message}`);
+        dmUser.socket.write(`${client.nickName}: ${message}`);
       });
       return;
     }
@@ -57,26 +54,25 @@ server.on('connection', (socket) => {
     if(data.startsWith('/troll')) {
       let inputNumber = data.split('/troll ')[1].slice(0, 1);
       let content = data.split('/troll').slice(2).join(' ');
-      console.log(inputNumber);
       for (var i = 0; i < inputNumber; i++) {
-        clientPool.forEach((user) => {
-          user.socket.write(`${user.nickName}: ${content}\n`);
+        clientPool.forEach((client) => {
+          client.socket.write(`${client.nickName}: ${content}\n`);
         });
       }
       return;
     }
 
     if(data.startsWith('/quit')){
-      clientPool.forEach((user) => {
-        user.socket.write(`\n${user.nickname} has quit!`);
+      clientPool.forEach((client) => {
+        client.socket.write(`\n${client.nickname} has quit!`);
       });
-      user.socket.end();
+      client.socket.end();
       return;
     }
-    
-    //this prints a users nickname when a user types, if they don't type in /nickname. this is the default.
+
+    //this prints a clients nickname when a client types, if they don't type in /nickname. this is the default.
     clientPool.forEach((item) => {
-      item.write(`${user.nickName}: ${data}`);
+      item.write(`${client.nickName}: ${data}`);
     });
   });
 });
