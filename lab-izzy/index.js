@@ -43,7 +43,9 @@ server.on('connection', (socket) => {
     //this allows the user to send a direct message to another user
     if(data.startsWith('/dm')) {
       let userName = data.split(' ')[1];
+      console.log(userName);
       let matchedUsers = clientPool.filter(item => item.nickName === userName);
+      console.log(matchedUsers);
       matchedUsers.forEach((dmUser) => {
         let message = data.split(' ').slice(2).join(' ');
         dmUser.socket.write(`${user.nickName}: ${message}`);
@@ -64,15 +66,18 @@ server.on('connection', (socket) => {
       return;
     }
 
+    if(data.startsWith('/quit')){
+      clientPool.forEach((user) => {
+        user.socket.write(`\n${user.nickname} has quit!`);
+      });
+      user.socket.end();
+      return;
+    }
+    
     //this prints a users nickname when a user types, if they don't type in /nickname. this is the default.
     clientPool.forEach((item) => {
       item.write(`${user.nickName}: ${data}`);
     });
-
-    if(data.startsWith('/quit')){
-      user.socket.handleDisconnect();
-      user.socket.end();
-    }
   });
 });
 
